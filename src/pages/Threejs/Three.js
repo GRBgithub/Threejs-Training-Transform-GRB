@@ -16,136 +16,80 @@ const Threejs = () => {
     ThreejsStart();
   }, []);
 
-  const ThreejsStart = () => {
-    // +-------------------------------------------------------------------+
-    // |  CANVAS INIT
-    // +-------------------------------------------------------------------+
-    const sizes = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    };
-    const aspectRatio = sizes.width / sizes.height;
-    const canvas = document.querySelector(".webgl");
+    const ThreejsStart = () => {
+    const canvas = document.querySelector('canvas.webgl');
+
+    // Scene
+    const axesHelper = new THREE.AxesHelper();
     const scene = new THREE.Scene();
-    // +-------------------------------------------------------------------+
-    // | Textures
-    // +-------------------------------------------------------------------+
-    const textureLoader = new THREE.TextureLoader();
-    const waterTexture = textureLoader.load(water);
-    // +-------------------------------------------------------------------+
-    // |  DEBUG PARAMETER
-    // +-------------------------------------------------------------------+
-    const Parameters = {
-      color: 0xffff00,
-      spin: () => {
-        gsap.to(mesh.rotation, {
-          y: mesh.rotation.y + Math.PI * 2,
-          duration: 1,
-        });
-      },
-    };
-    // +-------------------------------------------------------------------+
-    // |  Shader
-    // +-------------------------------------------------------------------+
-    const Shadermaterial = new THREE.RawShaderMaterial({
-      vertexShader: vertex.default,
-      fragmentShader: fragment.default,
-      uniforms: {
-      
-      },
-      side: THREE.DoubleSide,
-      transparent: true,
-    });
+     scene.add(axesHelper);
+    /**
+     * Objects
+     */
+    // const geometry = new THREE.BoxGeometry(1, 1, 1);
+    // const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    // const mesh = new THREE.Mesh(geometry, material);
+    // scene.add(mesh);
+    // mesh.position.x=0.7;
+    // mesh.position.y= -0.6;
+    // mesh.position.z=1;
+    // console.log(mesh.position.length()); // position de l'objet depuis le centre
+    // mesh.position.normalize();// change la position to 1 
+    // // mesh.position.set(0.8,0.4,1);// change la position de l'objet
+    // mesh.scale.set(2,0.5,0.5);// modify the size of the object x y z
+    // mesh.rotation.reorder("YXZ");// reorder axe pour savoir lequel des rotations est appelé
+    // mesh.rotation.y = Math.PI * 0.25 ;
+    // mesh.rotation.x = Math.PI *0.25;
 
+    // // PI = VALEUR PERMETTANT DE FAIRE UN MOITIER DE ROTATION D'ELEMENT
 
-    // +-------------------------------------------------------------------+
-    // |  OBJECT
-    // +-------------------------------------------------------------------+
+    const group = new THREE.Group();
+    scene.add(group);
 
-    const geometry = new THREE.PlaneBufferGeometry(1, 1, 32, 32);
-    const material = new THREE.MeshBasicMaterial({
-      color: Parameters.color,
-      wireframe: false,
-      side: THREE.DoubleSide,
-      transparent: true,
-    });
+    const cube1 = new THREE.Mesh(
+      new THREE.BoxGeometry(1,1,1),
+      new THREE.MeshBasicMaterial({color:"red"})
+    );
+    group.add(cube1);
+    const cube2 = new THREE.Mesh(
+      new THREE.BoxGeometry(1,1,1),
+      new THREE.MeshBasicMaterial({color:"green"})
+    );
+    cube2.position.x = 2;
+    group.add(cube2);
+    const cube3 = new THREE.Mesh(
+      new THREE.BoxGeometry(1,1,1),
+      new THREE.MeshBasicMaterial({color:"blue"})
+    );
+    cube3.position.x = -2;
+    group.add(cube3);
+    
+    group.rotation.y=1
+    
+    /**
+     * Sizes
+     */
+    const sizes = {
+        width: 800,
+        height: 600
+    }
 
-    const mesh = new THREE.Mesh(geometry, Shadermaterial);
-    mesh.position.y = 1;
-    scene.add(mesh);
-
-
-
-    // +-------------------------------------------------------------------+
-    // |  Lights
-    // +-------------------------------------------------------------------+
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-    scene.add(ambientLight);
-
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.set(1024, 1024);
-    directionalLight.shadow.camera.far = 15;
-    directionalLight.shadow.camera.left = -7;
-    directionalLight.shadow.camera.top = 7;
-    directionalLight.shadow.camera.right = 7;
-    directionalLight.shadow.camera.bottom = -7;
-    directionalLight.position.set(5, 5, 5);
-    scene.add(directionalLight);
-
-    // +-------------------------------------------------------------------+
-    // |  CAMERA
-    // +-------------------------------------------------------------------+
-    const camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 100);
-    camera.position.z = 4;
-    camera.position.y = 1;
-    camera.lookAt(mesh.position);
+    /**
+     * Camera
+     */
+    const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
+    camera.position.z = 3;
     scene.add(camera);
-
-    // +-------------------------------------------------------------------+
-    // |  CONTROLS RENDER
-    // +-------------------------------------------------------------------+
-    const controls = new OrbitControls(camera, canvas);
-    controls.enableDamping = true;
-
+    // console.log(mesh.position.distanceTo(camera.position)); //position de l'objet par rapport a un autre ou un vector3
+    // camera.lookAt(mesh.position);
+    /**
+     * Renderer
+     */
     const renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      antialias: true,
-    });
+        canvas: canvas
+    })
     renderer.setSize(sizes.width, sizes.height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    // +-------------------------------------------------------------------+
-    // |  REZIZE
-    // +-------------------------------------------------------------------+
-    window.addEventListener("resize", (e) => {
-      sizes.width = window.innerWidth;
-      sizes.height = window.innerHeight;
-
-      camera.aspect = sizes.width / sizes.height;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(sizes.width, sizes.height);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    });
-
-    // +-------------------------------------------------------------------+
-    // |  DEBUG
-    // +-------------------------------------------------------------------+
-    const gui = new dat.GUI({ closed: true });
-
-    // +-------------------------------------------------------------------+
-    // |  FRAME ACTION
-    // +-------------------------------------------------------------------+
-    const clock = new THREE.Clock();
-    const tick = () => {
-      const elapsedTime = clock.getElapsedTime();
-
-      controls.update();
-      renderer.render(scene, camera);
-      window.requestAnimationFrame(tick);
-    };
-    tick();
+    renderer.render(scene, camera);
   };
   return (
     <Container>
