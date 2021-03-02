@@ -11,7 +11,7 @@ import * as vertex from "!raw-loader!glslify-loader!./shader/vertex.glsl";
 
 
 import water from "../../../../assets/img/water.jpeg";
-const ShaderPattern = () => {
+const Threejs = () => {
   React.useEffect(() => {
     ThreejsStart();
   }, []);
@@ -157,4 +157,4 @@ const Container = styled.div`
   width: 100%;
   height: 100vh;
 `;
-export default ShaderPattern;
+export default Threejs;
